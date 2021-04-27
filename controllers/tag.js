@@ -4,21 +4,36 @@ const db = require('../helpers/db');
 
 const create = (req, res) => {
 	const { name } = req.body;
-	console.log('dinesh:::: ' + name);
+
 	let slug = slugify(name).toLowerCase();
 
-	db.one('INSERT INTO tags(name, slug) VALUES($1, $2) RETURNING id', [
-		name,
-		slug,
-	])
+	db.one('INSERT INTO tags(name, slug) VALUES($1, $2) RETURNING id', [name, slug])
 		.then((data) => {
 			console.log('new inserted id: ' + data.id); // print new user id;
-			res.json(data);
+			res.json({ result: 'success' });
 		})
 		.catch((error) => {
-			console.log('object.. error ' + JSON.stringify(err));
+			console.log('object.. error ' + JSON.stringify(error));
 			return res.status(400).json({
-				error: errorHandler(err),
+				error: errorHandler(error),
+			});
+		});
+};
+
+const edit = (req, res) => {
+	const { name, id } = req.body;
+
+	let slug = slugify(name).toLowerCase();
+
+	db.one(`update tags set name = $1, slug= $2 where id = ${id} RETURNING id`, [name, slug])
+		.then((data) => {
+			console.log('tag updted id: ' + data.id); // print new user id;
+			res.json({ result: 'success' });
+		})
+		.catch((error) => {
+			console.log('object.. error ' + JSON.stringify(error));
+			return res.status(400).json({
+				error: errorHandler(error),
 			});
 		});
 };
@@ -64,4 +79,5 @@ module.exports = {
 	remove,
 	list,
 	read,
+	edit,
 };

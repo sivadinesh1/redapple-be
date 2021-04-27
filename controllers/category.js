@@ -7,18 +7,15 @@ const create = (req, res) => {
 	console.log('dinesh:::: ' + name);
 	let slug = slugify(name).toLowerCase();
 
-	db.one('INSERT INTO categories(name, slug) VALUES($1, $2) RETURNING id', [
-		name,
-		slug,
-	])
+	db.one('INSERT INTO categories(name, slug) VALUES($1, $2) RETURNING id', [name, slug])
 		.then((data) => {
 			console.log('new inserted id: ' + data.id); // print new user id;
 			res.json(data);
 		})
 		.catch((error) => {
-			console.log('object.. error ' + JSON.stringify(err));
+			console.log('object.. error ' + JSON.stringify(error));
 			return res.status(400).json({
-				error: errorHandler(err),
+				error: errorHandler(error),
 			});
 		});
 };
