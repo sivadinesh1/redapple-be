@@ -79,16 +79,7 @@ exports.create = (req, res) => {
 
 		db.one(
 			'INSERT INTO blog(title, slug, body, excerpt, mtitle, mdesc, categories, tags) VALUES($1, $2, $3, $4, $5, $6, $7::integer[], $8::integer[]) RETURNING id',
-			[
-				title,
-				slug,
-				body,
-				excerpt,
-				mtitle,
-				mdesc,
-				arrayOfCategories,
-				arrayOfTags,
-			]
+			[title, slug, body, excerpt, mtitle, mdesc, arrayOfCategories, arrayOfTags]
 		)
 			.then((data) => {
 				console.log('new inserted BLOG id: ' + data.id); // print new user id;
@@ -105,7 +96,8 @@ exports.create = (req, res) => {
 
 exports.list = (req, res) => {
 	let query = `
-	SELECT b.id, b.title,  array_agg(distinct(c.name)) as c1, 	array_agg(distinct(t.name)) as t1
+	SELECT b.id, b.title, b.excerpt, array_agg(distinct(c.name)) as categories, 	
+	array_agg(distinct(t.name)) as tags
 	 FROM blog b
 	 	LEFT outer JOIN categories as c ON c.id = SOME(b.categories)
 	 	LEFT  JOIN tags as t ON t.id = SOME(b.tags)
@@ -135,9 +127,7 @@ exports.listAllBlogsCategoriesTags = (req, res) => {
 		.sort({ createdAt: -1 })
 		.skip(skip)
 		.limit(limit)
-		.select(
-			'_id title slug excerpt categories tags postedBy createdAt updatedAt'
-		)
+		.select('_id title slug excerpt categories tags postedBy createdAt updatedAt')
 		.exec((err, data) => {
 			if (err) {
 				return res.json({
@@ -184,11 +174,10 @@ exports.read = (req, res) => {
 		b.id = '${id}'	
 	 GROUP BY title, b.id ORDER BY id `;
 
-	console.log('dinesh read: ' + query);
-
 	db.any(query, [])
 		.then((data) => {
-			return res.json(data);
+			console.log('dinesh ' + JSON.stringify(data));
+			return res.json(data[0]);
 		})
 		.catch((error) => {
 			console.log('error ...' + error);
@@ -276,16 +265,7 @@ exports.update = (req, res) => {
 			` update blog set title = $1, slug = $2, body = $3, excerpt = $4, mtitle = $5, mdesc = $6, categories = $7::integer[], tags = $8::integer[]  
 			where id = ${id}
 			RETURNING id`,
-			[
-				title,
-				slug,
-				body,
-				excerpt,
-				mtitle,
-				mdesc,
-				arrayOfCategories,
-				arrayOfTags,
-			]
+			[title, slug, body, excerpt, mtitle, mdesc, arrayOfCategories, arrayOfTags]
 		)
 			.then((data) => {
 				console.log('edited BLOG id: ' + data.id); // print new user id;
