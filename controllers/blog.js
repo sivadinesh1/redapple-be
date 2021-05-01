@@ -10,6 +10,8 @@ const { smartTrim } = require('../helpers/utils');
 const fs = require('fs');
 
 exports.create = (req, res) => {
+	console.log("test request------------>",req.body)
+	debugger
 	let form = new formidable.IncomingForm();
 
 	console.log('dinesh ' + JSON.stringify(form));
@@ -35,8 +37,8 @@ exports.create = (req, res) => {
 			});
 		}
 
-		const { title, body, categories, tags } = fields;
-
+		const { title, categories, tags, body } = fields;
+		//let body='<h1>test</h1><p>test msbsndsbbsmsbsbsssds.</p><p>sjsjshscjscsjhcshcsccjc</p>'
 		console.log('title dinesh ' + title);
 		console.log('body dinesh ' + body);
 		console.log('categories dinesh ' + categories);
@@ -54,28 +56,29 @@ exports.create = (req, res) => {
 		let mdesc = stripHtml(body).result.substring(0, 160);
 
 		console.log('mdesc dinesh ' + mdesc);
+		console.log('mtitle test ' + mtitle);
 
 		let excerpt = smartTrim(body, 320, '', ' ...');
-
+		console.log('excerpt test ' + excerpt);	
 		// let postedBy = req.user.id;
-		let photodata;
-		let photoContentType;
+		// let photodata;
+		// let photoContentType;
 
-		if (files.photo) {
-			if (files.photo.size > 10000000) {
-				return res.status(400).json({
-					error: 'Image should be less then 1mb in size',
-				});
-			}
-			photodata = fs.readFileSync(files.photo.path);
-			console.log('photo data ' + photodata);
-			photoContentType = files.photo.type;
+		// if (files.photo) {
+		// 	if (files.photo.size > 10000000) {
+		// 		return res.status(400).json({
+		// 			error: 'Image should be less then 1mb in size',
+		// 		});
+		// 	}
+		// 	photodata = fs.readFileSync(files.photo.path);
+		// 	console.log('photo data ' + photodata);
+		// 	photoContentType = files.photo.type;
 
-			fs.writeFile('./upload1', photodata, function (err) {
-				if (err) console.log(err);
-				//  return res.send("Successfully uploaded")
-			});
-		}
+		// 	fs.writeFile('./upload1', photodata, function (err) {
+		// 		if (err) console.log(err);
+		// 		//  return res.send("Successfully uploaded")
+		// 	});
+		// }
 
 		db.one(
 			'INSERT INTO blog(title, slug, body, excerpt, mtitle, mdesc, categories, tags) VALUES($1, $2, $3, $4, $5, $6, $7::integer[], $8::integer[]) RETURNING id',
@@ -186,16 +189,25 @@ exports.read = (req, res) => {
 
 exports.remove = (req, res) => {
 	const slug = req.params.slug.toLowerCase();
-	Blog.findOneAndRemove({ slug }).exec((err, data) => {
-		if (err) {
-			return res.json({
-				error: errorHandler(err),
-			});
-		}
-		res.json({
-			message: 'Blog deleted successfully',
+	console.log("test slug---->",slug)
+	db.any('delete from blog where slug = $1', [slug])
+		.then((data) => {
+			return res.json(data);
+		})
+		.catch((error) => {
+			console.log('error ...' + error);
 		});
-	});
+
+	// Blog.findOneAndRemove({ slug }).exec((err, data) => {
+	// 	if (err) {
+	// 		return res.json({
+	// 			error: errorHandler(err),
+	// 		});
+	// 	}
+	// 	res.json({
+	// 		message: 'Blog deleted successfully',
+	// 	});
+	//});
 };
 
 exports.update = (req, res) => {

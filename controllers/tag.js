@@ -22,7 +22,7 @@ const create = (req, res) => {
 
 const edit = (req, res) => {
 	const { name, id } = req.body;
-
+	console.log("test name ---->",name +"test ----->",id) 
 	let slug = slugify(name).toLowerCase();
 
 	db.one(`update tags set name = $1, slug= $2 where id = ${id} RETURNING id`, [name, slug])

@@ -20,6 +20,24 @@ const create = (req, res) => {
 		});
 };
 
+const edit = (req, res) => {
+	const { name, id } = req.body;
+	console.log("test category name ---->",name +"test ----->",id) 
+	let slug = slugify(name).toLowerCase();
+
+	db.one(`update categories set name = $1, slug= $2 where id = ${id} RETURNING id`, [name, slug])
+		.then((data) => {
+			console.log('category updted id: ' + data.id); // print new user id;
+			res.json({ result: 'success' });
+		})
+		.catch((error) => {
+			console.log('object.. error ' + JSON.stringify(error));
+			return res.status(400).json({
+				error: errorHandler(error),
+			});
+		});
+};
+
 const list = (req, res) => {
 	let query = 'select * from categories';
 
@@ -61,4 +79,5 @@ module.exports = {
 	remove,
 	list,
 	read,
+	edit
 };
