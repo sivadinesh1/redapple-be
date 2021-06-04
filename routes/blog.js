@@ -19,11 +19,13 @@ const {
 	update,
 	photo,
 	listRelated,
+	createMeeting
 } = require('../controllers/blog');
 
 const { requireSignin, adminMiddleware } = require('../controllers/auth');
 
 router.post('/blog', requireSignin, create);
+router.post('/meetingCreate', requireSignin, createMeeting);
 router.get('/blogs', list);
 router.post('/blogs-categories-tags', listAllBlogsCategoriesTags);
 router.get('/blog/:id', read);

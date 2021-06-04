@@ -8,6 +8,47 @@ const db = require('../helpers/db');
 const { smartTrim } = require('../helpers/utils');
 
 const fs = require('fs');
+const axios = require('axios')
+const blogService=require('../service/blog.service')
+const httpStatus = require('http-status');
+const ApiError = require('../utils/ApiError');
+const catchAsync = require('../utils/catchAsync');
+
+
+exports.createMeeting = (req, res) => {
+	const { topic, start_time, type, duration, timezone, agenda } = req.body;
+	console.log('Test:::: ' + topic);
+	let values={
+		"topic":topic,
+		"start_time":start_time,
+		"type":type,
+		"agenda":agenda,
+		"duration":duration
+	}
+
+	var url='https://api.zoom.us/v2/users/sanmuganathan.yuvaraj@aalamsoft.com/meetings'
+    var jwtToken='eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOm51bGwsImlzcyI6ImRnMWh1eVl3Um5xRm9lY2xHTV9lemciLCJleHAiOjE2MjA4MDE2NjYsImlhdCI6MTYyMDE5NjgwMn0.WWAa6Ol6EiKkf_KLMlQu3-ya2vIXAxU3ofmt4pSaYQo'
+    const options = {
+        headers: {
+            'Content-Type': 'application/json',
+            'Access-Control-Allow-Origin': '*',
+            'Authorization': `Bearer ${jwtToken}` 
+        }
+	  };
+	  
+	  axios.post(url, values,options).then((res) => {
+		console.log("RESPONSE ==== : ", res);
+		//return res;
+	  })
+	  .catch((err) => {
+		console.log("ERROR: ====", err);
+		return err;
+	  })
+};
+// exports.create =catchAsync(async (req, res) => {
+// 	const blog = await blogService.create(req);
+//   	res.status(httpStatus.CREATED).send(blog);
+// });
 
 exports.create = (req, res) => {
 	console.log("test request------------>",req.body)

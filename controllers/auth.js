@@ -45,7 +45,7 @@ exports.signin = async (req, res) => {
 			});
 
 			res.cookie('token', token, { expiresIn: '1d' });
-
+			console.log("test users---->",user)
 			const { id, username, name, email, role } = user;
 
 			return res.json({
@@ -139,7 +139,7 @@ const insertUser = async (name, email, password) => {
 
 			db.one(
 				'INSERT INTO user_role(user_id, role_id) VALUES($1, $2) RETURNING id',
-				[data.id, 2]
+				[data.id, 1]
 			).then((data1) => {
 				console.log('user role inserted..');
 			});
