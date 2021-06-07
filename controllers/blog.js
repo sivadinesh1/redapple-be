@@ -366,3 +366,23 @@ exports.listRelated = (req, res) => {
 			res.json(blogs);
 		});
 };
+
+
+exports.latestBlog = catchAsync(async (req,res) => {
+	console.log("test ----------->",req)
+	const blog = await blogService.latestData();
+	if (!blog ) {
+	  throw new ApiError(httpStatus.NOT_FOUND, 'blog not found');
+	}
+	 res.send(blog);
+  });
+
+  exports.tagFilter = catchAsync(async (req,res) => {
+	console.log("test ----------->",req.params.tag)
+	const blog = await blogService.tagsFilter(req.params.tag);
+	if (!blog ) {
+	  throw new ApiError(httpStatus.NOT_FOUND, 'blog not found');
+	}
+	 res.send(blog);
+  });
+

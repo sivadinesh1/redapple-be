@@ -19,7 +19,9 @@ const {
 	update,
 	photo,
 	listRelated,
-	createMeeting
+	createMeeting,
+	latestBlog,
+	tagFilter
 } = require('../controllers/blog');
 
 const { requireSignin, adminMiddleware } = require('../controllers/auth');
@@ -34,5 +36,9 @@ router.put('/blog/:id', requireSignin, update);
 
 router.get('/blog/photo/:slug', photo);
 router.post('/blogs/related', listRelated);
+router.get('/blogs/getLatest', latestBlog);
+router.get('/blogs/search/:tag', tagFilter);
+
+
 
 module.exports = router;

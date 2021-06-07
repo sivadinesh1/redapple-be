@@ -11,22 +11,6 @@ const fs = require('fs');
 const axios = require('axios')
 
 
-const create1 = () => {
-    console.log("test body tag---->",name)
-    let slug = slugify(name).toLowerCase(); 
-    return new Promise (function (resolve, reject){
-        db.one('INSERT INTO categories(name, slug) VALUES($1, $2) RETURNING id', [name, slug])
-		.then((data) => {
-			console.log('new inserted id: ' + data.id); // print new user id;
-            resolve(data)
-		})
-		.catch((error) => {
-			console.log('object.. error ' + JSON.stringify(error));
-            reject(error)
-		});
-    })
-};
-
 const create = (req) => {
     let form = new formidable.IncomingForm();
 
@@ -127,9 +111,51 @@ const create = (req) => {
 		// 	});
 	});
 };
+const latestData = () => {
+    console.log("List method call--->")
+	let query = `select * from blog b order by id desc limit 1`;
 
+    return new Promise (function (resolve, reject){
+        db.any(query)
+		.then((data) => {
+			console.log('latest blog get successfully: ' + data.length); // print new user id;
+            resolve(data)
+		})
+		.catch((error) => {
+			console.log('object.. error ' + error);
+            reject(error)
+		});
+    })
+};
+
+const tagsFilter = (tags) => {
+    console.log("List method call--->",tags)
+    let test=`%${tags}%`
+    let query = `select 
+    distinct b.title,
+    b.tags,
+    b.categories ,
+    b.slug ,
+    b.excerpt
+    from tags t ,blog b
+    where  t.id = any (b.tags) and t."name" like $1`;
+
+    return new Promise (function (resolve, reject){
+        db.any(query,[test])
+		.then((data) => {
+			console.log('latest blog get successfully: ' + data.length); // print new user id;
+            resolve(data)
+		})
+		.catch((error) => {
+			console.log('object.. error ' + error);
+            reject(error)
+		});
+    })
+};
 
 module.exports = {
-	create
+    create,
+    latestData,
+    tagsFilter
 	
 };

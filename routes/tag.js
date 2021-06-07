@@ -10,7 +10,7 @@ const { requireSignin, adminMiddleware } = require('../controllers/auth');
 
 router.post('/tag', tagCreateValidator, runValidation, requireSignin, create);
 router.post('/edit-tag', tagCreateValidator, runValidation, requireSignin, edit);
-router.get('/tags', list);
+router.get('/tags/:companyid', list);
 router.get('/tag/:slug', read);
 router.delete('/tag/:slug', requireSignin, remove);
 

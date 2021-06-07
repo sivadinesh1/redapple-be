@@ -19,7 +19,7 @@ const edit = catchAsync(async (req, res) => {
 
   const list = catchAsync(async (req,res) => {
 
-	const tags = await tagService.list();
+	const tags = await tagService.list(req.params.companyid);
 	if (!tags ) {
 	  throw new ApiError(httpStatus.NOT_FOUND, 'Tags not found');
 	}

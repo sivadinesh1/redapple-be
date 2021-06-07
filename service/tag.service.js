@@ -37,9 +37,9 @@ const edit = (reqbody) => {
 	
 };
 
-const list = () => {
+const list = (id) => {
     console.log("List method call--->")
-	let query = 'select * from tags';
+	let query = `select * from tags where companyId=${id}`;
 
     return new Promise (function (resolve, reject){
         db.any(query)
