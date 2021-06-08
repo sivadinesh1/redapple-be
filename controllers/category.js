@@ -7,8 +7,8 @@ const catchAsync = require('../utils/catchAsync');
 const categoryService=require('../service/category.service')
 
 const create =catchAsync(async (req, res) => {
-	const { name } = req.body;
-	const category = await categoryService.create(name);
+	//const { name } = req.body;
+	const category = await categoryService.create(req.body);
   	res.status(httpStatus.CREATED).send(category);
 });
 
@@ -19,7 +19,7 @@ const edit = catchAsync(async (req, res) => {
 
   const list = catchAsync(async (req,res) => {
 
-	const categories = await categoryService.list();
+	const categories = await categoryService.list(req.params.companyId);
 	if (!categories ) {
 	  throw new ApiError(httpStatus.NOT_FOUND, 'categories not found');
 	}

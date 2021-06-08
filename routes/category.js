@@ -21,7 +21,7 @@ runValidation,
 requireSignin,
  edit
  );
-router.get('/categories', list);
+router.get('/categories/:companyId', list);
 router.get('/category/:slug', read);
 router.delete('/category/:slug', requireSignin, remove);
 

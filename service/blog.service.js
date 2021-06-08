@@ -111,6 +111,30 @@ const create = (req) => {
 		// 	});
 	});
 };
+const list = (companyId) => {
+    console.log("List method call--->")
+	let query = `
+	SELECT b.id, b.title, b.excerpt, array_agg(distinct(c.name)) as categories, 	
+	array_agg(distinct(t.name)) as tags
+	 FROM blog b
+	 	LEFT outer JOIN categories as c ON c.id = SOME(b.categories)
+		 LEFT  JOIN tags as t ON t.id = SOME(b.tags)
+		 where b.companyId=$1
+	 GROUP BY title, b.id ORDER BY id `;
+
+    return new Promise (function (resolve, reject){
+        db.any(query,[companyId])
+		.then((data) => {
+			console.log('list get successfully: ' + data.length); // print new user id;
+            resolve(data)
+		})
+		.catch((error) => {
+			console.log('object.. error ' + error);
+            reject(error)
+		});
+    })
+};
+
 const latestData = () => {
     console.log("List method call--->")
 	let query = `select * from blog b order by id desc limit 1`;
@@ -128,9 +152,9 @@ const latestData = () => {
     })
 };
 
-const tagsFilter = (tags) => {
-    console.log("List method call--->",tags)
-    let test=`%${tags}%`
+const tagsFilter = (searchKey) => {
+    console.log("tag filter method call--->",searchKey)
+    let search=`%${searchKey}%`
     let query = `select 
     distinct b.title,
     b.tags,
@@ -141,9 +165,34 @@ const tagsFilter = (tags) => {
     where  t.id = any (b.tags) and t."name" like $1`;
 
     return new Promise (function (resolve, reject){
-        db.any(query,[test])
+        db.any(query,[search])
 		.then((data) => {
-			console.log('latest blog get successfully: ' + data.length); // print new user id;
+			console.log('blogs get successfully: ' + data.length); // print new user id;
+            resolve(data)
+		})
+		.catch((error) => {
+			console.log('object.. error ' + error);
+            reject(error)
+		});
+    })
+};
+
+const categoryFilter = (searchKey) => {
+    console.log("category filter method call--->",searchKey)
+    let search=`%${searchKey}%`
+    let query = `select  
+    distinct b.title,
+    b.tags,
+    b.categories ,
+    b.slug ,
+    b.excerpt 
+    from categories c,blog b
+    where  c.id = any (b.categories ) and c."name" LIKE $1;`;
+
+    return new Promise (function (resolve, reject){
+        db.any(query,[search])
+		.then((data) => {
+			console.log('blogs get successfully: ' + data.length); // print new user id;
             resolve(data)
 		})
 		.catch((error) => {
@@ -156,6 +205,8 @@ const tagsFilter = (tags) => {
 module.exports = {
     create,
     latestData,
-    tagsFilter
+    tagsFilter,
+    categoryFilter,
+    list
 	
 };

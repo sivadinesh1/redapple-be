@@ -8,7 +8,7 @@ const tagService=require('../service/tag.service')
 
 const create =catchAsync(async (req, res) => {
 	const { name } = req.body;
-	const tag = await tagService.create(name);
+	const tag = await tagService.create(req.body);
   	res.status(httpStatus.CREATED).send(tag);
 });
 

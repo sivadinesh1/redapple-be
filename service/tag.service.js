@@ -2,11 +2,12 @@ const slugify = require('slugify');
 const { errorHandler } = require('../helpers/dbErrorHandler');
 const db = require('../helpers/db');
 
-const create = (name) => {
+const create = (body) => {
+	const {name,companyId}=body
     console.log("test body tag---->",name)
     let slug = slugify(name).toLowerCase(); 
     return new Promise (function (resolve, reject){
-        db.one('INSERT INTO tags(name, slug) VALUES($1, $2) RETURNING *', [name, slug])
+        db.one('INSERT INTO tags(name, slug,companyId) VALUES($1, $2, $3) RETURNING *', [name, slug, companyId])
 		.then((data) => {
 			console.log('new inserted id: ' + data.id); // print new user id;
             resolve({ result: 'success' })

@@ -78,7 +78,7 @@ exports.create = (req, res) => {
 			});
 		}
 
-		const { title, categories, tags, body } = fields;
+		const { title, categories, tags, body, companyId } = fields;
 		//let body='<h1>test</h1><p>test msbsndsbbsmsbsbsssds.</p><p>sjsjshscjscsjhcshcsccjc</p>'
 		console.log('title dinesh ' + title);
 		console.log('body dinesh ' + body);
@@ -122,8 +122,8 @@ exports.create = (req, res) => {
 		// }
 
 		db.one(
-			'INSERT INTO blog(title, slug, body, excerpt, mtitle, mdesc, categories, tags) VALUES($1, $2, $3, $4, $5, $6, $7::integer[], $8::integer[]) RETURNING id',
-			[title, slug, body, excerpt, mtitle, mdesc, arrayOfCategories, arrayOfTags]
+			'INSERT INTO blog(title, slug, body, excerpt, mtitle, mdesc, categories, tags, companyId) VALUES($1, $2, $3, $4, $5, $6, $7::integer[], $8::integer[], $9) RETURNING id',
+			[title, slug, body, excerpt, mtitle, mdesc, arrayOfCategories, arrayOfTags, companyId]
 		)
 			.then((data) => {
 				console.log('new inserted BLOG id: ' + data.id); // print new user id;
@@ -138,23 +138,24 @@ exports.create = (req, res) => {
 	});
 };
 
-exports.list = (req, res) => {
-	let query = `
-	SELECT b.id, b.title, b.excerpt, array_agg(distinct(c.name)) as categories, 	
-	array_agg(distinct(t.name)) as tags
-	 FROM blog b
-	 	LEFT outer JOIN categories as c ON c.id = SOME(b.categories)
-	 	LEFT  JOIN tags as t ON t.id = SOME(b.tags)
-	 GROUP BY title, b.id ORDER BY id `;
+// exports.list = (req, res) => {
+// 	let query = `
+// 	SELECT b.id, b.title, b.excerpt, array_agg(distinct(c.name)) as categories, 	
+// 	array_agg(distinct(t.name)) as tags
+// 	 FROM blog b
+// 	 	LEFT outer JOIN categories as c ON c.id = SOME(b.categories)
+// 		 LEFT  JOIN tags as t ON t.id = SOME(b.tags)
+// 		 where b.companyId=$1
+// 	 GROUP BY title, b.id ORDER BY id `;
 
-	db.any(query, [])
-		.then((data) => {
-			return res.json(data);
-		})
-		.catch((error) => {
-			console.log('error ...' + error);
-		});
-};
+// 	db.any(query, [])
+// 		.then((data) => {
+// 			return res.json(data);
+// 		})
+// 		.catch((error) => {
+// 			console.log('error ...' + error);
+// 		});
+// };
 
 exports.listAllBlogsCategoriesTags = (req, res) => {
 	let limit = req.body.limit ? parseInt(req.body.limit) : 10;
@@ -367,9 +368,15 @@ exports.listRelated = (req, res) => {
 		});
 };
 
+exports.list = catchAsync(async (req,res) => {
+	const blog = await blogService.list(req.params.companyId);
+	if (!blog ) {
+	  throw new ApiError(httpStatus.NOT_FOUND, 'blog not found');
+	}
+	 res.send(blog);
+  });
 
 exports.latestBlog = catchAsync(async (req,res) => {
-	console.log("test ----------->",req)
 	const blog = await blogService.latestData();
 	if (!blog ) {
 	  throw new ApiError(httpStatus.NOT_FOUND, 'blog not found');
@@ -378,8 +385,15 @@ exports.latestBlog = catchAsync(async (req,res) => {
   });
 
   exports.tagFilter = catchAsync(async (req,res) => {
-	console.log("test ----------->",req.params.tag)
-	const blog = await blogService.tagsFilter(req.params.tag);
+	const blog = await blogService.tagsFilter(req.params.searchKey);
+	if (!blog ) {
+	  throw new ApiError(httpStatus.NOT_FOUND, 'blog not found');
+	}
+	 res.send(blog);
+  });
+
+  exports.categoryFilter = catchAsync(async (req,res) => {
+	const blog = await blogService.categoryFilter(req.params.searchKey);
 	if (!blog ) {
 	  throw new ApiError(httpStatus.NOT_FOUND, 'blog not found');
 	}

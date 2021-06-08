@@ -1,11 +1,12 @@
 const slugify = require('slugify');
 const db = require('../helpers/db');
 
-const create = (name) => {
-    console.log("test body tag---->",name)
+const create = (body) => {
+    // console.log("test body tag---->",name)
+    const {name,companyId}=body
     let slug = slugify(name).toLowerCase(); 
     return new Promise (function (resolve, reject){
-        db.one('INSERT INTO categories(name, slug) VALUES($1, $2) RETURNING id', [name, slug])
+        db.one('INSERT INTO categories(name, slug,companyId) VALUES($1, $2, $3) RETURNING id', [name, slug, companyId])
 		.then((data) => {
 			console.log('new inserted id: ' + data.id); // print new user id;
             resolve(data)
@@ -36,12 +37,12 @@ const edit = (reqbody) => {
 	
 };
 
-const list = () => {
+const list = (companyId) => {
     console.log("List method call--->")
-	let query = 'select * from categories';
+	let query = 'select * from categories c where c.companyId = $1';
 
     return new Promise (function (resolve, reject){
-        db.any(query)
+        db.any(query,[companyId])
 		.then((data) => {
 			console.log('categories get successfully: ' + data.length); // print new user id;
             resolve(data)
